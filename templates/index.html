@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title> Nationality Detector — AI Face Analysis</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
+</head>
+<body>
+
+  <!-- header section -->
+  <header class="site-header">
+    <div class="header-inner">
+      <div class="logo">
+        <span class="logo-globe"></span>
+        <div>
+          <span class="logo-title">NatioScan</span>
+          <span class="logo-sub">AI · Face Analysis</span>
+        </div>
+      </div>
+      <div class="header-badge">Powered by DeepFace </div>
+    </div>
+  </header>
+
+  <!-- hero part -->
+  <section class="hero">
+    <p class="hero-eyebrow"> Machine Learning · Computer Vision</p>
+    <h1 class="hero-title">Detect Nationality<br><span class="grad">from a Photo</span></h1>
+    <p class="hero-desc">Upload any face image — our AI predicts nationality, emotion, age &amp; dress colour based on advanced facial analysis.</p>
+    <div class="hero-pills">
+      <span>🇮🇳 Indian → Age + Emotion + Dress</span>
+      <span>🇺🇸 American → Age + Emotion</span>
+      <span> African → Emotion + Dress</span>
+      <span> Others → Nationality + Emotion</span>
+    </div>
+  </section>
+
+  <main class="main-grid">
+
+    <!-- upload wala card -->
+    <section class="card upload-card">
+      <h2 class="card-title"> Upload Image</h2>
+
+      <div class="drop-zone" id="dropZone">
+        <div class="drop-inner" id="dropInner">
+          <div class="drop-icon"></div>
+          <p class="drop-label">Drag &amp; drop image here</p>
+          <p class="drop-sub">or click to browse</p>
+          <p class="drop-hint">JPG · PNG · WEBP · BMP &nbsp;|&nbsp; Max 10 MB</p>
+        </div>
+        <img id="imagePreview" class="img-preview hidden" alt="Preview" />
+        <input type="file" id="fileInput" accept="image/jpeg,image/png,image/webp,image/bmp" hidden />
+      </div>
+
+      <div id="fileInfo" class="file-info hidden">
+        <span id="fileName" class="file-name"></span>
+        <button class="btn-clear" id="clearBtn" title="Remove image">✕</button>
+      </div>
+
+      <button class="btn-analyze" id="analyzeBtn" disabled>
+        <span class="btn-text"> Analyze Image</span>
+        <span class="btn-spinner hidden" id="btnSpinner">
+          <span class="spinner"></span> Analyzing…
+        </span>
+      </button>
+
+      <div id="errorBox" class="error-box hidden"></div>
+    </section>
+
+    <!-- results wala card -->
+    <section class="card results-card" id="resultsCard">
+
+      <!-- jab koi image nahi upload ki -->
+      <div class="empty-state" id="emptyState">
+        <div class="empty-icon"></div>
+        <p>Results will appear here after analysis</p>
+      </div>
+
+      <!-- loading -->
+      <div class="loading-state hidden" id="loadingState">
+        <div class="scan-ring">
+          <div class="scan-face"></div>
+        </div>
+        <p class="scan-text">Scanning face…</p>
+        <div class="scan-steps">
+          <div class="step active" id="step1"> Detecting face</div>
+          <div class="step" id="step2"> Identifying nationality</div>
+          <div class="step" id="step3"> Analysing emotion</div>
+          <div class="step" id="step4"> Building results</div>
+        </div>
+      </div>
+
+      <!-- actual results -->
+      <div class="results-content hidden" id="resultsContent">
+
+        <div class="result-hero" id="resultHero">
+          <div class="result-flag" id="resultFlag"></div>
+          <div class="result-meta">
+            <p class="result-nation" id="resultNation"></p>
+            <div class="conf-bar-wrap">
+              <div class="conf-bar-track">
+                <div class="conf-bar-fill" id="confBarFill"></div>
+              </div>
+              <span class="conf-pct" id="confPct"></span>
+            </div>
+          </div>
+        </div>
+
+        <!-- stats row - emotion age dress etc -->
+        <div class="stats-row" id="statsRow"></div>
+
+        <!-- charts section -->
+        <div class="charts-section">
+          <div class="chart-block">
+            <h3 class="chart-title"> Race Distribution</h3>
+            <div class="bar-chart" id="raceChart"></div>
+          </div>
+          <div class="chart-block">
+            <h3 class="chart-title">Emotion Distribution</h3>
+            <div class="bar-chart" id="emotionChart"></div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+  </main>
+
+  <!-- how it works section -->
+  <section class="how-section">
+    <h2 class="how-title"> How It Works</h2>
+    <div class="how-grid">
+      <div class="how-card">
+        <div class="how-num">01</div>
+        <div class="how-icon"></div>
+        <h3>Upload Photo</h3>
+        <p>Drop any clear face image. Frontal photos give best accuracy.</p>
+      </div>
+      <div class="how-card">
+        <div class="how-num">02</div>
+        <div class="how-icon"></div>
+        <h3>DeepFace AI</h3>
+        <p>VGG-Face &amp; ArcFace models trained on 20K+ labelled images from UTKFace dataset.</p>
+      </div>
+      <div class="how-card">
+        <div class="how-num">03</div>
+        <div class="how-icon"></div>
+        <h3>Conditional Results</h3>
+        <p>Output adapts — Indian faces include dress colour &amp; age; African faces include dress colour, etc.</p>
+      </div>
+      <div class="how-card">
+        <div class="how-num">04</div>
+        <div class="how-icon"></div>
+        <h3>Colour Detect</h3>
+        <p>HSV-based torso segmentation identifies dominant clothing colour in real-time.</p>
+      </div>
+    </div>
+  </section>
+
+  <footer class="site-footer">
+    <p> NatioScan · Built with DeepFace, OpenCV &amp; Flask &nbsp;·&nbsp; For educational use only</p>
+  </footer>
+
+  <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>
