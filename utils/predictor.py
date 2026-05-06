@@ -8,7 +8,7 @@ import os
 # deepface se face analysis krke result return karta hai
 
 def make_serializable(obj):
-    # numpy types ko normal python types me convert kro
+    # numpy types ko normal python types me convert kra hai
     # warna json me error aata hai
     if isinstance(obj, dict):
         return {k: make_serializable(v) for k, v in obj.items()}
@@ -145,7 +145,7 @@ def analyze_face(img_path):
         for k, v in sorted(emo_scores.items(), key=lambda x: -x[1])
     ][:5]
 
-    # age fix - negative nahi aana chahiye
+    # age 
     age = fix_age(face.get('age', 0))
     print("age:", age)
 

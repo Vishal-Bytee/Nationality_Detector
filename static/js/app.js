@@ -15,6 +15,18 @@ var resultsContent = document.getElementById('resultsContent');
 
 var selectedFile = null;
 
+var plotlyConfig = {
+    displayModeBar: false,
+    responsive: true
+};
+
+var plotlyLayout = {
+    paper_bgcolor: 'rgba(0,0,0,0)',
+    plot_bgcolor: 'rgba(0,0,0,0)',
+    font: { color: '#e8eaf0', family: 'DM Sans, sans-serif', size: 11 },
+    margin: { t: 10, b: 10, l: 10, r: 10 }
+};
+
 function fixAge(val) {
     var n = parseFloat(String(val));
     if (isNaN(n)) return 0;
@@ -210,6 +222,11 @@ function showResults(r) {
 
     makeChart('raceChart', r.race_chart, 'race-fill');
     makeChart('emotionChart', r.emotion_chart, 'emo-fill');
+
+    drawRaceDonut(r.race_chart);
+    drawEmotionRadar(r.emotion_chart);
+    drawConfGauge(r.confidence);
+    drawEmotionBar(r.emotion_chart);
 }
 
 function makeChart(id, items, cls) {
@@ -239,4 +256,148 @@ function makeChart(id, items, cls) {
             }, 60);
         });
     });
+}
+
+function drawRaceDonut(raceChart) {
+    var labels = raceChart.map(function(d) { return d.name; });
+    var values = raceChart.map(function(d) { return d.confidence; });
+
+    var data = [{
+        type: 'pie',
+        hole: 0.55,
+        labels: labels,
+        values: values,
+        textinfo: 'label+percent',
+        textfont: { size: 10, color: '#e8eaf0' },
+        marker: {
+            colors: ['#f5a623', '#38e8c8', '#7c6ef7', '#ff4d6d', '#2dd4bf'],
+            line: { color: '#161921', width: 2 }
+        },
+        hovertemplate: '<b>%{label}</b><br>%{value}%<extra></extra>'
+    }];
+
+    var layout = Object.assign({}, plotlyLayout, {
+        height: 240,
+        showlegend: false
+    });
+
+    Plotly.newPlot('plotRaceDonut', data, layout, plotlyConfig);
+}
+
+function drawEmotionRadar(emotionChart) {
+    var allEmotions = ['Happy', 'Sad', 'Angry', 'Fear', 'Surprise', 'Disgust', 'Neutral'];
+    var emotionMap = {};
+    emotionChart.forEach(function(d) { emotionMap[d.name] = d.confidence; });
+    var values = allEmotions.map(function(e) { return emotionMap[e] || 0; });
+    values.push(values[0]);
+    var categories = allEmotions.concat([allEmotions[0]]);
+
+    var data = [{
+        type: 'scatterpolar',
+        r: values,
+        theta: categories,
+        fill: 'toself',
+        fillcolor: 'rgba(245,166,35,0.15)',
+        line: { color: '#f5a623', width: 2 },
+        marker: { color: '#f5a623', size: 5 },
+        hovertemplate: '<b>%{theta}</b><br>%{r}%<extra></extra>'
+    }];
+
+    var layout = Object.assign({}, plotlyLayout, {
+        height: 240,
+        polar: {
+            bgcolor: 'rgba(0,0,0,0)',
+            radialaxis: {
+                visible: true,
+                range: [0, 100],
+                color: '#5a5f6e',
+                gridcolor: 'rgba(255,255,255,0.05)',
+                tickfont: { size: 9, color: '#5a5f6e' }
+            },
+            angularaxis: {
+                color: '#8b909e',
+                gridcolor: 'rgba(255,255,255,0.06)',
+                tickfont: { size: 10 }
+            }
+        }
+    });
+
+    Plotly.newPlot('plotEmotionRadar', data, layout, plotlyConfig);
+}
+
+function drawConfGauge(confidence) {
+    var data = [{
+        type: 'indicator',
+        mode: 'gauge+number',
+        value: confidence,
+        number: { suffix: '%', font: { size: 28, color: '#f5a623' } },
+        gauge: {
+            axis: {
+                range: [0, 100],
+                tickcolor: '#5a5f6e',
+                tickfont: { size: 9, color: '#5a5f6e' }
+            },
+            bar: { color: '#f5a623', thickness: 0.25 },
+            bgcolor: 'rgba(255,255,255,0.04)',
+            bordercolor: 'rgba(255,255,255,0.08)',
+            steps: [
+                { range: [0, 40],  color: 'rgba(255,77,109,0.15)' },
+                { range: [40, 70], color: 'rgba(245,166,35,0.1)' },
+                { range: [70, 100],color: 'rgba(56,232,200,0.1)' }
+            ],
+            threshold: {
+                line: { color: '#38e8c8', width: 3 },
+                thickness: 0.75,
+                value: confidence
+            }
+        }
+    }];
+
+    var layout = Object.assign({}, plotlyLayout, {
+        height: 240,
+        margin: { t: 20, b: 20, l: 30, r: 30 }
+    });
+
+    Plotly.newPlot('plotConfGauge', data, layout, plotlyConfig);
+}
+
+function drawEmotionBar(emotionChart) {
+    var names = emotionChart.map(function(d) { return d.name; });
+    var values = emotionChart.map(function(d) { return d.confidence; });
+    var colors = ['#f5a623', '#38e8c8', '#7c6ef7', '#ff4d6d', '#2dd4bf'];
+
+    var data = [{
+        type: 'bar',
+        x: values,
+        y: names,
+        orientation: 'h',
+        marker: {
+            color: names.map(function(_, i) { return colors[i % colors.length]; }),
+            line: { color: 'rgba(0,0,0,0)', width: 0 }
+        },
+        text: values.map(function(v) { return v + '%'; }),
+        textposition: 'outside',
+        textfont: { size: 10, color: '#8b909e' },
+        hovertemplate: '<b>%{y}</b><br>%{x}%<extra></extra>'
+    }];
+
+    var layout = Object.assign({}, plotlyLayout, {
+        height: 240,
+        xaxis: {
+            range: [0, 110],
+            color: '#5a5f6e',
+            gridcolor: 'rgba(255,255,255,0.05)',
+            tickfont: { size: 9 },
+            showgrid: true
+        },
+        yaxis: {
+            color: '#8b909e',
+            tickfont: { size: 10 },
+            showgrid: false,
+            automargin: true
+        },
+        margin: { t: 10, b: 30, l: 70, r: 40 }
+    });
+
+    Plotly.newPlot('plotEmotionBar', data, layout, plotlyConfig);
 }
