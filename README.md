@@ -58,7 +58,7 @@ This project was built as part of a machine learning course assignment focused o
 
 
 ## Project Structure
-
+```
 nationality_detector/
 │
 ├── app.py                    # Flask application, routes
@@ -80,7 +80,7 @@ nationality_detector/
 ├── requirements.txt          # Python dependencies
 ├── .gitignore
 └── README.md
-
+```
 
 ## How It Works
 
@@ -108,7 +108,7 @@ nationality_detector/
 
 ```bash
 # 1. Clone the repository
-git clone https://github.com/yourusername/natioscan.git
+git clone https://github.com/Vishal-Bytee/Nationality_Detector.git
 cd natioscan
 
 # 2. Create virtual environment
